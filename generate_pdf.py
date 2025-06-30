@@ -1,19 +1,31 @@
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
+# generate_pdf.py
+from fpdf import FPDF
+import io
 
-def create_pdf_report(data, filename="report.pdf"):
-    c = canvas.Canvas(filename, pagesize=A4)
-    c.setFont("Helvetica-Bold", 18)
-    c.drawString(50, 800, "MSME Carbon Footprint Report")
+def create_pdf(electricity, fuel, travel, waste, carbon_score):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=14)
+    pdf.cell(200, 10, txt="Carbon Footprint Report", ln=True, align='C')
+    pdf.ln(10)
+    pdf.set_font("Arial", size=12)
 
-    c.setFont("Helvetica", 12)
-    c.drawString(50, 760, f"Electricity Used: {data['electricity']} kWh")
-    c.drawString(50, 740, f"Diesel Used: {data['diesel']} liters")
-    c.drawString(50, 720, f"Travel Distance: {data['distance']} km")
-    c.drawString(50, 700, f"Materials Used: {data['material']} kg")
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, 660, f"Total Emissions: {data['emissions']} kg CO₂")
+    pdf.cell(200, 10, txt=f"Electricity usage: {electricity} kWh", ln=True)
+    pdf.cell(200, 10, txt=f"Fuel consumption: {fuel} litres", ln=True)
+    pdf.cell(200, 10, txt=f"Travel distance: {travel} km", ln=True)
+    pdf.cell(200, 10, txt=f"Waste generated: {waste} kg", ln=True)
+    pdf.ln(5)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(200, 10, txt=f"Total Carbon Score: {carbon_score} tons CO₂", ln=True)
+    pdf.ln(10)
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, txt="Tips to reduce your carbon footprint:\n"
+                              "- Switch to energy-efficient appliances.\n"
+                              "- Reduce car usage.\n"
+                              "- Recycle waste.\n"
+                              "- Use public transport.\n"
+                              "- Eat more plant-based foods.")
 
-    c.setFont("Helvetica", 10)
-    c.drawString(50, 620, "Thank you for using the Carbon Footprint Calculator.")
-    c.save()
+    pdf_output = io.BytesIO()
+    pdf.output(pdf_output)
+    return pdf_output.getvalue()
